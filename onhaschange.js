@@ -46,11 +46,11 @@ hashchange_handler.defaults = {
 
 // FUNCTION udo_builder: builds data passed into utag.view call.
 // EXAMPLES:
-//    hash_changed.udo_builder('thankyou')
+//    hashchange_handler.udo_builder('thankyou')
 //          {dom.url: "https://www.pge.com/en_US/residential/save-energy-…onger-term-assistance/care/care.page#hash", event_type: "confirmation"};
-//    hash_changed.udo_builder({some_key: 'yey'})
+//    hashchange_handler.udo_builder({some_key: 'yey'})
 //          {dom.url: "https://www.pge.com/en_US/residential/save-energy-…onger-term-assistance/care/care.page#hash", some_key: "yey"};
-//    hash_changed.udo_builder({some_key: 'yey'}, {more_data: 'super'})
+//    hashchange_handler.udo_builder({some_key: 'yey'}, {more_data: 'super'})
 //          { "dom.url": "https://www.pge.com/en_US/residential/save-energy-money/help-paying-your-bill/longer-term-assistance/care/care.page#hash", "some_key": "yey", "more_data": "super" }
 hashchange_handler.udo_builder = function(init, additional) {
   // FUNCTION kindof: returns the type of data correctly.
