@@ -32,6 +32,12 @@ hash_changed.udo_builder = function(init, additional) {
   function kindof(data){var data_type=Object.prototype.toString.call(data).match(/\s([a-zA-Z]+)/)[1].toLowerCase().replace(/^html|element/gim,"");switch(data_type){case"number":return isNaN(data)?"nan":"number";default:return data_type}};
 
   // FUNCTION map_data: takes keys from source and puts them in target.
+  // EXAMPLES:
+  //  map_data({key:'new value, override old'}, {key: 'old value, ill be wiped out'})
+  //      {key: "new value, override old"}
+//  map_data({key:'new value!'}, {key: 'old value!', other_key: 'ill be fine'})
+  //      {key: "new value!", other_key: "ill be fine"}
+
   function map_data(source,target){source=kindof(source)==="object"?source:{};target=kindof(target)==="object"?target:{};if(Object.keys){Object.keys(source).forEach(function(key,i){target[key]=source[key]})}else{for(var key in source){if(source.hasOwnProperty(key)){target[key]=source[key]}}}return target}
 
   // create data object that is going to be passed into utag.view call.
