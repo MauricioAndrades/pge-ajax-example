@@ -30,18 +30,23 @@ hash_changed.config = {'thankyou': {"event_type": "confirmation"}};
 hash_changed.udo_builder = function(init, additional) {
   // FUNCTION kindof: returns the type of data correctly.
   function kindof(data){var data_type=Object.prototype.toString.call(data).match(/\s([a-zA-Z]+)/)[1].toLowerCase().replace(/^html|element/gim,"");switch(data_type){case"number":return isNaN(data)?"nan":"number";default:return data_type}};
+
   // FUNCTION map_data: takes keys from source and puts them in target.
   function map_data(source,target){source=kindof(source)==="object"?source:{};target=kindof(target)==="object"?target:{};if(Object.keys){Object.keys(source).forEach(function(key,i){target[key]=source[key]})}else{for(var key in source){if(source.hasOwnProperty(key)){target[key]=source[key]}}}return target}
+
   // create data object that is going to be passed into utag.view call.
   // always add the current page's url to the default dataset.
   var udo = {'dom.url': document.URL};
+
   // make a shortcut to the hashchange_handler config.
   var config = hash_changed.config || {};
   var init_type = kindof(init);
+
   // if the initial param is a string then lookit up in the default configs.
   // and great if we have it then map the keys to the udo we'll return eventually for the utag.view call.
   if (init_type === "string" && config[init]) {map_data(config[init], udo)}
   else if (init_type === "object") {map_data(init, udo);}
+
   // if we passed in additional data, map that too.
   if (kindof(additional) === "object") {map_data(additional, udo)}
   return udo;
