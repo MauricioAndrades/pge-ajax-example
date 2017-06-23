@@ -176,15 +176,13 @@ try {
   hashchange_handler.queue = [];
   hashchange_handler.dispatch = function(event) {
     var self = hashchange_handler;
-    if (self.queue.indexOf(event.oldURL) > -1 || self.queue.indexOf(document.URL) > -1) {
-      return;
-    };
-    self.queue.push(event.oldURL);
-    self.queue.push(document.URL);
-    // exit if something happened and we lost the utag obj.
-    if (!window.utag && !window.utag.view) {
-      return;
-    }
+  if (self.queue.indexOf(event.newURL) > -1) {
+    return;
+  }
+  self.queue.push(event.newURL);
+  if (!window.utag && !window.utag.view) {
+    return;
+  }
 
 
 
@@ -208,8 +206,6 @@ try {
     // HERE WE ADD OUR LIST OF FLOWS //
     ////////////////////////////////////
     var tracking_data = {};
-    var curr_path = self.parseURI(document.URL).path;
-    var ref_path = self.parseURI(document.referrer).path;
 
     for (var key in self.defaults) {
       if (self.defaults.hasOwnProperty(key) && event.newURL.indexOf(key) > -1) {
@@ -221,26 +217,16 @@ try {
         } catch (e) {}
       }
     }
-
-    // test flow
-    // if (self.debug) {
-    //   tracking_data = {};
-    //   console.log('debug mode: firing utag.view');
-    //   if (self.debug_data) tracking_data = self.udo_builder(self.debug_data, tracking_data);
-    //   utag.view(tracking_data, function() {
-    //     hashchange_handler.debug = false;
-    //   });
-    // }
   }
 
 
   ////////////////////////////////
   // FINALLY: Attach the event. //
   ////////////////////////////////
-  hashchange_handler.debug = true;
-  if (hashchange_handler.queue.indexOf(document.URL) === -1) {
-    window.addEventListener('hashchange', hashchange_handler.dispatch);
-  }
+if (!hashchange_handler.ready) {
+  hashchange_handler.ready = true;
+  window.addEventListener("hashchange", hashchange_handler.dispatch);
+}
 
 } catch (e) {
   // statements
