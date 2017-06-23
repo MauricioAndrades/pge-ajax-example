@@ -35,7 +35,7 @@ hash_changed.udo_builder = function(init, additional) {
   // EXAMPLES:
   //  map_data({key:'new value, override old'}, {key: 'old value, ill be wiped out'})
   //      {key: "new value, override old"}
-//  map_data({key:'new value!'}, {key: 'old value!', other_key: 'ill be fine'})
+  //  map_data({key:'new value!'}, {key: 'old value!', other_key: 'ill be fine'})
   //      {key: "new value!", other_key: "ill be fine"}
 
   function map_data(source,target){source=kindof(source)==="object"?source:{};target=kindof(target)==="object"?target:{};if(Object.keys){Object.keys(source).forEach(function(key,i){target[key]=source[key]})}else{for(var key in source){if(source.hasOwnProperty(key)){target[key]=source[key]}}}return target}
@@ -58,26 +58,61 @@ hash_changed.udo_builder = function(init, additional) {
   return udo;
 }
 
+
+//////////////////////////////////////
+// DISPATCH: Make the tracking call //
+//////////////////////////////////////
+// this handles firing the utag.view call based on the flow.
 hash_changed.dispatch = function(event) {
   // exit if something happened and we lost the utag obj.
   if (!window.utag && !window.utag.view) {return;}
 
   // add debug mode: so you can see what is going on in your staging env.
-  var debug = /dev\/utag\.js|\/qa\/utag\.js/.test(utag.cfg.path);
+  var is_debug = /dev|qa/.test(utag.cfg.path);
 
-  // garbage collect: clean up old tags.
+  ////////////////////////////////////////
+  // GARBAGE COLLECT: CLEAN UP OLD TAGS //
+  ////////////////////////////////////////
+  // clean up old tags on the page while we ajax flow. optional but
+  // probably a good idea.
   if (window.document.querySelectorAll) {
-    Array.prototype.forEach.call(document.querySelectorAll('[id*="utag"]'), function(tag) {
-      if (/dev\/utag\.js|\/qa\/utag\.js/.test(utag.cfg.path)) tag.parentNode.removeChild(tag);
+    Array.prototype.forEach.call(document.querySelectorAll('[id*="utag_"]'), function(tag) {
+      // if we're in dev mode. tell me what is happening.
+      if (is_debug && utag.DB) {utag.DB('removing old tags');}
+      // clean up old tags before i fire utag.view again.
+      tag.parentNode.removeChild(tag);
     });
   }
 
-  // create the data passed into the utag.view call.
+  ////////////////////////////////////
+  // HERE WE ADD OUR LIST OF FLOWS //
+  ////////////////////////////////////
+  var tracking_data = {};
+
+  // first flow.
   if (event.oldURL === "https://m.pge.com/#otaaccount/carefera/confirmation" && event.newURL === "https://m.pge.com/#otaaccount/carefera/thankyou") {
-    utag.view(hash_changed.udo_builder('thankyou'));
+    // try it
+    try {
+      // pull the default obj from our preconfigs.
+      tracking_data = hash_changed.udo_builder('thankyou');
+      // maybe add some more data? sure, add the event_type and page_name keys.
+      tracking_data = hash_changed.udo_builder(tracking_data, {event_type: 'conversion',page_name: 'thankyou page'});
+      utag.view(tracking_data);
+    } catch (e) {}
+  }
+
+  // test flow
+  if (is_debug) {
+    console.log('debug mode: firing utag.view');
+    tracking_data = hash_changed.udo_builder(tracking_data, {test_key: 'yep it works'});
+    utag.view(hash_changed.udo_builder(tracking_data));
   }
 }
 
+
+////////////////////////////////
+// FINALLY: Attach the event. //
+////////////////////////////////
 window.addEventListener('hashchange', function(e) {
   hash_changed.dispatch(e);
 });
