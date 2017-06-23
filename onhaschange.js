@@ -37,8 +37,9 @@ try {
 
 
   // default configs: here we can set prebuilt object lookups for the type of flows or pages.
+
   hashchange_handler.defaults = {
-    "login": {
+    "#login": {
       "page_type": "Mobile",
       "page_class": "Log In or One-Time Access",
       "page_name": "login",
@@ -65,6 +66,13 @@ try {
       "page_name": "myaccount/carefera/enroll",
       "page_title": "CARE/FERA",
       "page_title_sub": "Enroll in CARE/FERA"
+    },
+    "#myaccount/carefera/thankyou": {
+      "page_type": "Mobile",
+      "page_class": "CARE-FERA Thank You",
+      "page_name": "otaaccount/carefera/thankyou",
+      "page_title": "CARE/FERA",
+      "page_title_sub": "CARE/FERA Thank You"
     }
   };
 
@@ -167,7 +175,6 @@ try {
   // this handles firing the utag.view call based on the flow.
   hashchange_handler.queue = [];
   hashchange_handler.dispatch = function(event) {
-    debugger;
     var self = hashchange_handler;
     if (self.queue.indexOf(event.oldURL) > -1 || self.queue.indexOf(document.URL) > -1) {
       return;
@@ -203,33 +210,27 @@ try {
     var tracking_data = {};
     var curr_path = self.parseURI(document.URL).path;
     var ref_path = self.parseURI(document.referrer).path;
-    // #OTAACCOUNT/CAREFERA/CONFIRMATION
-    if (event.oldURL === "https://m.pge.com/#otaaccount/carefera/confirmation" && event.newURL === "https://m.pge.com/#otaaccount/carefera/thankyou") {
-      try {
-        tracking_data = self.udo_builder("#otaaccount/carefera/thankyou");
-        tracking_data = self.udo_builder(tracking_data);
-        utag.view(tracking_data);
-      } catch (e) {}
-    }
 
-
-    if (curr_path === "/en_US/residential/save-energy-money/resources/energy-alerts/energy-alerts.page" && ref_path === "/en_US/residential/save-energy-money/resources/summer-tips/summer-tips.page") {
-      try {
-        tracking_data = self.udo_builder("login");
-        tracking_data = self.udo_builder(tracking_data);
-        utag.view(tracking_data);
-      } catch (e) {}
+    for (var key in self.defaults) {
+      if (self.defaults.hasOwnProperty(key) && event.newURL.indexOf(key) > -1) {
+        try {
+          tracking_data = self.udo_builder(self.defaults[key]);
+          tracking_data = self.udo_builder(tracking_data);
+          utag.view(tracking_data);
+          return;
+        } catch (e) {}
+      }
     }
 
     // test flow
-    if (self.debug) {
-      tracking_data = {};
-      console.log('debug mode: firing utag.view');
-      if (self.debug_data) tracking_data = self.udo_builder(self.debug_data, tracking_data);
-      utag.view(tracking_data, function() {
-        hashchange_handler.debug = false;
-      });
-    }
+    // if (self.debug) {
+    //   tracking_data = {};
+    //   console.log('debug mode: firing utag.view');
+    //   if (self.debug_data) tracking_data = self.udo_builder(self.debug_data, tracking_data);
+    //   utag.view(tracking_data, function() {
+    //     hashchange_handler.debug = false;
+    //   });
+    // }
   }
 
 
