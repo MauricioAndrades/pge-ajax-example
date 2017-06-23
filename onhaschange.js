@@ -19,15 +19,18 @@
 window.hash_changed = {};
 hash_changed.config = {'thankyou': {"event_type": "confirmation"}};
 
-// function udo_builder: builds data passed into utag.view call.
-// examples:
-//    hash_changed.udo_builder('thankyou') === {dom.url: "https://www.pge.com/en_US/residential/save-energy-…onger-term-assistance/care/care.page#hash", event_type: "confirmation"};
-//    hash_changed.udo_builder({some_key: 'yey'}) === {dom.url: "https://www.pge.com/en_US/residential/save-energy-…onger-term-assistance/care/care.page#hash", some_key: "yey"};
-//    hash_changed.udo_builder({some_key: 'yey'}, {more_data: 'super'}) === { "dom.url": "https://www.pge.com/en_US/residential/save-energy-money/help-paying-your-bill/longer-term-assistance/care/care.page#hash", "some_key": "yey", "more_data": "super" }
+// FUNCTION udo_builder: builds data passed into utag.view call.
+// EXAMPLES:
+//    hash_changed.udo_builder('thankyou')
+//          {dom.url: "https://www.pge.com/en_US/residential/save-energy-…onger-term-assistance/care/care.page#hash", event_type: "confirmation"};
+//    hash_changed.udo_builder({some_key: 'yey'})
+//          {dom.url: "https://www.pge.com/en_US/residential/save-energy-…onger-term-assistance/care/care.page#hash", some_key: "yey"};
+//    hash_changed.udo_builder({some_key: 'yey'}, {more_data: 'super'})
+//          { "dom.url": "https://www.pge.com/en_US/residential/save-energy-money/help-paying-your-bill/longer-term-assistance/care/care.page#hash", "some_key": "yey", "more_data": "super" }
 hash_changed.udo_builder = function(init, additional) {
-  // function kindof: returns the type of data correctly.
+  // FUNCTION kindof: returns the type of data correctly.
   function kindof(data){var data_type=Object.prototype.toString.call(data).match(/\s([a-zA-Z]+)/)[1].toLowerCase().replace(/^html|element/gim,"");switch(data_type){case"number":return isNaN(data)?"nan":"number";default:return data_type}};
-  // function map_data: takes keys from source and puts them in target.
+  // FUNCTION map_data: takes keys from source and puts them in target.
   function map_data(source,target){source=kindof(source)==="object"?source:{};target=kindof(target)==="object"?target:{};if(Object.keys){Object.keys(source).forEach(function(key,i){target[key]=source[key]})}else{for(var key in source){if(source.hasOwnProperty(key)){target[key]=source[key]}}}return target}
   // create data object that is going to be passed into utag.view call.
   // always add the current page's url to the default dataset.
